@@ -6,26 +6,31 @@
 				word-wrap: break-word;
 				white-space: normal;
 			}
+			
+			video {
+				border: 1px solid black;
+			}
 		</style>
+		
+		<p>weres the videos</p>
+		<video width="320" height="240" controls  id="p1"></video>
+
+		<video width="320" height="240" id="p2" controls ></video>
+		
+		<p id="connectionStatus">not connected</p>
+		
 		<form>
 			<textarea id="incoming"></textarea>
 			<button type="submit">submit</button>
 		</form>
 		<pre id="outgoing"></pre>
 
-		<video width="320" height="240" id="p1"></video>
-		
-		<video width="320" height="240" id="p2"></video>
-		
+
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.9.3/simplepeer.min.js"></script>
 		<script>
 
-			
 
-//			const p = new SimplePeer({
-//				initiator: location.hash === '#1',
-//				trickle: false
-//			})
+
 
 
 			// get video/voice stream
@@ -35,58 +40,115 @@
 			}).then(gotMedia).catch(() => {})
 
 
+
+
+			//						// get video/voice stream
+			//						navigator.mediaDevices.getUserMedia({
+			//							video: true,
+			//							audio: true
+			//						}).then(gotMedia).catch(() => {})
+			//			
+			//			
+			//						function gotMedia (stream) {
+			//							var peer1 = new SimplePeer({ initiator: true, stream: stream })
+			//							var peer2 = new SimplePeer()
+			//			
+			//							peer1.on('signal', data => {
+			//								peer2.signal(data)
+			//							})
+			//			
+			//							peer2.on('signal', data => {
+			//								peer1.signal(data)
+			//							})
+			//			
+			//							// fired when Received a remote video stream, which can be displayed in a video tag:
+			//							peer2.on('stream', stream => {
+			//								// got remote video stream, now let's show it in a video tag
+			//								var video = document.getElementById('p2')
+			//			
+			//								if ('srcObject' in video) {
+			//									video.srcObject = stream
+			//								} else {
+			//									video.src = window.URL.createObjectURL(stream) // for older browsers
+			//								}
+			//			
+			//								video.play()
+			//							})
+			//						}
+
+
 			function gotMedia (stream) {
-				var peer1 = new SimplePeer({ initiator: true, stream: stream })
-				var peer2 = new SimplePeer()
 
-				peer1.on('signal', data => {
-					peer2.signal(data)
+				const p = new SimplePeer({
+					initiator: location.hash === '#1', 
+					stream: stream,
+					trickle: false
 				})
 
-				peer2.on('signal', data => {
-					peer1.signal(data)
+				console.log(p)
+				if(p.initiator == true) {
+					console.log("INITIATOR")
+				} else {
+					console.log("OTHER")
+				}
+
+
+				p.on('error', err => console.log('error', err))
+
+
+				//			This data is an Object, so remember to call JSON.stringify(data) to serialize it first. 
+				//			Then, simply call peer.signal(data) on the remote peer.
+
+				//			(Be sure to listen to this event immediately to avoid missing it. For initiator: true peers, it fires 
+				//			right away. For initatior: false peers, it fires when the remote offer is received.)
+				p.on('signal', data => {
+					console.log('called signal')
+					console.log('SIGNAL', JSON.stringify(data))
+					document.querySelector('#outgoing').textContent = JSON.stringify(data)
 				})
 
-				peer2.on('stream', stream => {
-					// got remote video stream, now let's show it in a video tag
-					var video = document.getElementById('p2')
 
-					if ('srcObject' in video) {
-						video.srcObject = stream
-					} else {
-						video.src = window.URL.createObjectURL(stream) // for older browsers
-					}
-
-					video.play()
+				document.querySelector('form').addEventListener('submit', ev => {
+					ev.preventDefault()
+					p.signal(JSON.parse(document.querySelector('#incoming').value))
 				})
+
+
+				// Fired when the peer connection and data channel are ready to use.
+				p.on('connect', () => {
+					console.log('CONNECT')	
+					document.getElementById("connectionStatus").innerHTML = "Connected";
+					p.send('whatever' + Math.random())
+
+
+
+					p.on('stream', stream => {
+						console.log("STREAM BEGIN")
+						
+						// got remote video stream, now let's show it in a video tag
+						var video = document.getElementById('p2')
+
+						if ('srcObject' in video) {
+							video.srcObject = stream
+						} else {
+							video.src = window.URL.createObjectURL(stream) // for older browsers
+						}
+
+						video.play()
+					})
+
+
+
+
+				})
+
+
+				// fired when Received a message from the remote peer (via the data channel).
+				p.on('data', data => {
+					console.log('data: ' + data)
+				})
+
 			}
-
-
-
-
-//			p.on('error', err => console.log('error', err))
-//
-//			p.on('signal', data => {		
-//
-//				console.log('SIGNAL', JSON.stringify(data))
-//				document.querySelector('#outgoing').textContent = JSON.stringify(data)
-//			})
-//
-//			document.querySelector('form').addEventListener('submit', ev => {
-//				ev.preventDefault()
-//				p.signal(JSON.parse(document.querySelector('#incoming').value))
-//			})
-//
-//			p.on('connect', () => {
-//				console.log('CONNECT')
-//				p.send('whatever' + Math.random())
-//			})
-//
-//			p.on('data', data => {
-//				console.log('data: ' + data)
-//			})
-
-
 
 
 
