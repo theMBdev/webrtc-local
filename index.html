@@ -21,7 +21,7 @@
 
 		<form id="formCode">
 			<textarea id="incoming"></textarea>
-			<button type="submit" onclick="event.preventDefault()">submit</button>
+			<button type="submit">submit</button>
 		</form>
 		
 		<pre id="outgoing"></pre>
@@ -124,6 +124,7 @@
 				document.getElementById('formCode').addEventListener('submit', ev => {
 					ev.preventDefault()
 					p.signal(JSON.parse(document.querySelector('#incoming').value))
+					return false;
 				})
 
 
