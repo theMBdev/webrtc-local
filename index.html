@@ -19,16 +19,16 @@
 
 		<p id="connectionStatus">not connected</p>
 
-		<form>
+		<form id="formCode">
 			<textarea id="incoming"></textarea>
-			<button type="submit">submit</button>
+			<button type="submit" onclick="event.preventDefault()">submit</button>
 		</form>
+		
 		<pre id="outgoing"></pre>
 
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/simple-peer/9.9.3/simplepeer.min.js"></script>
 		<script>
-
 
 
 
@@ -121,7 +121,7 @@
 				})
 
 
-				document.querySelector('form').addEventListener('submit', ev => {
+				document.getElementById('formCode').addEventListener('submit', ev => {
 					ev.preventDefault()
 					p.signal(JSON.parse(document.querySelector('#incoming').value))
 				})
