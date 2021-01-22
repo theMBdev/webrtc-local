@@ -35,7 +35,7 @@
 
 
 			// get video/voice stream
-			navigator.mediaDevices.getUserMedia({
+			navigator.mediaDevices.getDisplayMedia({
 				video: true,
 				audio: true
 			}).then(gotMedia).catch(() => {})
@@ -80,29 +80,23 @@
 
 
 			function gotMedia (stream) {
-
-
-				var videoLocal = document.getElementById('p1')
-
-						//						if ('srcObject' in video) {
-						videoLocal.srcObject = stream
-						//						} else {
-						//							videoCon.src = window.URL.createObjectURL(stream) // for older browsers
-						//						}
-
-						videoLocal.play()
 				
+				var videoLocal = document.getElementById('p1')
+				videoLocal.srcObject = stream
+				videoLocal.play()
 
-			
+				var p;
 
-
-
-
-				const p = new SimplePeer({
-					initiator: location.hash === '#1', 
+				if(location.hash === '#1') {	
+					p = new SimplePeer({
+					initiator: true,					
 					stream: stream,
 					trickle: false
 				})
+				} else {
+					p = new SimplePeer()
+				}				
+								
 
 				console.log(p)
 				if(p.initiator == true) {
@@ -139,20 +133,19 @@
 					document.getElementById("connectionStatus").innerHTML = "Connected";
 					p.send('whatever' + Math.random())
 
+
+					// SEND THE STREAM
+					
+
+				})
+
+				p.on('stream', stream => {
 					console.log("STREAM BEGIN")
-
-						// got remote video stream, now let's show it in a video tag
-						var videoCon = document.getElementById('p2')
-
-						//						if ('srcObject' in video) {
-						videoCon.srcObject = stream
-						//						} else {
-						//							videoCon.src = window.URL.createObjectURL(stream) // for older browsers
-						//						}
-
-						videoCon.play()
-					console.log('end')
-				})			
+					// got remote video stream, now let's show it in a video tag
+					var videoCon = document.getElementById('p2')	
+					videoCon.srcObject = stream
+					videoCon.play()
+				})
 
 
 
@@ -163,22 +156,22 @@
 
 
 
-				function doStreamThing() {
-					p.on('stream', stream => {
-						console.log("STREAM BEGIN")
-
-						// got remote video stream, now let's show it in a video tag
-						var videoCon = document.getElementById('p2')
-
-						//						if ('srcObject' in video) {
-						videoCon.srcObject = stream
-						//						} else {
-						//							videoCon.src = window.URL.createObjectURL(stream) // for older browsers
-						//						}
-
-						videoCon.play()
-					})
-				}
+				//				function doStreamThing() {
+				//					p.on('stream', stream => {
+				//						console.log("STREAM BEGIN")
+				//
+				//						// got remote video stream, now let's show it in a video tag
+				//						var videoCon = document.getElementById('p2')
+				//
+				//						//						if ('srcObject' in video) {
+				//						videoCon.srcObject = stream
+				//						//						} else {
+				//						//							videoCon.src = window.URL.createObjectURL(stream) // for older browsers
+				//						//						}
+				//
+				//						videoCon.play()
+				//					})
+				//				}
 
 
 			}
